@@ -29,9 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="icon" type="image/x-icon" href="../image/logo.png">
-    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../css/user_regis.css">
+    <link rel="icon" type="image/x-icon" href="image/logo.png">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/user_regis.css">
 </head>
 <body>
     
@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">Register</button>
                         </form>
-                        <p class="text-center mt-3">Already registered? <a href="login.php">Login here</a></p>
+                        <p class="text-center mt-3">Already registered? <a href="index.php">Login here</a></p>
                     </div>
                 </div>
             </div>
