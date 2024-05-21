@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO users_regis (username,email, password, role) VALUES ('$username','$email', '$password', '$role')";
         if ($conn->query($sql) === TRUE) {
             $_SESSION["success"] = "Registration successful. You can now login.";
-            header("Location: login.php");
+            header("Location: index.html");
             exit();
         } else {
             $error = "Error: " . $sql . "<br>" . $conn->error;
