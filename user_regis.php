@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO users_regis (username,email, password, role) VALUES ('$username','$email', '$password', '$role')";
         if ($conn->query($sql) === TRUE) {
             $_SESSION["success"] = "Registration successful. You can now login.";
-            header("Location: index.html");
+            header("Location: index.php");
             exit();
         } else {
             $error = "Error: " . $sql . "<br>" . $conn->error;
@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">Register</button>
                         </form>
-                        <p class="text-center mt-3">Already registered? <a href="index.html">Login here</a></p>
+                        <p class="text-center mt-3">Already registered? <a href="index.php">Login here</a></p>
                     </div>
                 </div>
             </div>
