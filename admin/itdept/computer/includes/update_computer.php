@@ -1,38 +1,52 @@
 <?php
+session_start();
+include('../../../../connection/connect.php');
+require_once '../../../../phpqrcode/qrlib.php'; 
 
-    session_start();
-    include('../../../connection/connect.php');
-    require_once '../../../../phpqrcode/qrlib.php'; 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id = $_POST["id"];
+    $device_name = $_POST['device_name'];
+    $brand = $_POST['brand'];
+    $pc_number = $_POST['pc_number'];
+    $processor = $_POST['processor'];
+    $ram = $_POST['ram'];
+    $system_type = $_POST['system_type'];
+    $pen_touch = $_POST['pen_touch'];
+    $problem = $_POST['problem'];
+    
+    // Ensure the directory exists
+    $qrCodeDir = '../image/';
+    if (!is_dir($qrCodeDir)) {
+        mkdir($qrCodeDir, 0755, true);
+    }
+    $qrCodeImagePath = $qrCodeDir . 'qr_image_' . $pc_number . '.png';
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $id = $_POST["id"];
-        $device_name = $_POST['device_name'];
-        $brand = $_POST['brand'];
-        $pc_number = $_POST['pc_number'];
-        $processor = $_POST['processor'];
-        $ram = $_POST['ram'];
-        $system_type = $_POST['system_type'];
-        $pen_touch = $_POST['pen_touch'];
-        $problem = $_POST['problem'];
-        $qr_img = $_POST['qr_img']; 
-        $qrText = "Device Name: $device_name\nBrand: $brand\nPC Number: $pc_number\nProcessor: $processor\nRAM: $ram\nSystem Type: $system_type\nPen Touch: $pen_touch\nProblem: $problem";
-        // $url = 'http://192.168.208.63/majorproject/login/login.php';
-        $qrCodeImagePath = "../image/qr_image_$pc_number.png"; 
+    // URL to be embedded in the QR code
+    $url = "http://yingathungkikon.000.pe/user/login.php?pc_number=" . urlencode($pc_number);
 
-        QRcode::png($qrText, $qrCodeImagePath);
-        // QRcode::png($url, $qrCodeImagePath);
+    // Generate the QR code with the URL
+    QRcode::png($url, $qrCodeImagePath);
 
-        $sql = "UPDATE itcomputers 
-                SET  device_name = '$device_name', brand = '$brand',pc_number = '$pc_number',processor = '$processor', ram = '$ram', system_type = '$system_type',pen_touch = '$pen_touch', problem = '$problem', qr_img = '$qrCodeImagePath'
-                WHERE id = '$id'";
+    // Update query with prepared statements to prevent SQL injection
+    $sql = "UPDATE itcomputers 
+            SET device_name = ?, brand = ?, pc_number = ?, processor = ?, ram = ?, system_type = ?, pen_touch = ?, problem = ?, qr_img = ?
+            WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssssssi", $device_name, $brand, $pc_number, $processor, $ram, $system_type, $pen_touch, $problem, $qrCodeImagePath, $id);
 
-        if ($conn->query($sql) === TRUE) {
-            header("Location: ../pages/adminview.php");
-            exit();
-        } else {
-            echo "Error updating record: " . $conn->error;
-        }
+    if ($stmt->execute()) {
+        header("Location: ../pages/adminview.php");
+        exit();
+    } else {
+        echo "Error updating record: " . $stmt->error;
     }
 
-    $conn->close();
+    $stmt->close();
+} else {
+    // Redirect if not a POST request
+    header("Location: add_computer.php");
+    exit();
+}
+
+$conn->close();
 ?>

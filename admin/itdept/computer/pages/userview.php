@@ -1,6 +1,6 @@
 <?php
     session_start();
-    include('../../../connection/connect.php');
+    include('../../../../connection/connect.php');
     $sql = "SELECT * FROM itcomputers";
     $result = $conn->query($sql);
 ?>

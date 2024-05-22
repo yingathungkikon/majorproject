@@ -1,5 +1,9 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
+
 include('../../../connection/connect.php');
 require '../../../../phpqrcode/qrlib.php';
 
@@ -13,26 +17,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pen_touch = $_POST['pen_touch'];
     $problem = $_POST['problem'];
 
-    // Generate QR Code
-    $qrText = "Device Name: $device_name\nBrand: $brand\nPC Number: $pc_number\nProcessor: $processor\nRAM: $ram\nSystem Type: $system_type\nPen Touch: $pen_touch\nProblem: $problem";
-    $url = 'http://192.168.208.63/majorproject/login/login.php';
-    $qrCodeImagePath = '../image'; 
-    QRcode::png($qrText, $qrCodeImagePath);
-    // QRcode::png($url, $qrCodeImagePath);
+    // Ensure the directory exists
+    $qrCodeDir = '../image/';
+    if (!is_dir($qrCodeDir)) {
+        mkdir($qrCodeDir, 0755, true);
+    }
+    $qrCodeImagePath = $qrCodeDir . $pc_number . '.png';
 
+    // Generate the URL that includes the PC number
+    $url = "http://yingathungkikon.000.pe/user/login.php?pc_number=" . urlencode($pc_number);
+
+    // Generate QR Code with the URL
+    QRcode::png($url, $qrCodeImagePath);
+
+    // Prepared statement to prevent SQL injection
     $insert_sql = "INSERT INTO itcomputers (device_name, brand, pc_number, processor, ram, system_type, pen_touch, problem, qr_img) 
-                   VALUES ('$device_name', '$brand', '$pc_number', '$processor', '$ram', '$system_type', '$pen_touch', '$problem', '$qrCodeImagePath')";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    if ($conn->query($insert_sql) === TRUE) {
+    $stmt = $conn->prepare($insert_sql);
+    $stmt->bind_param("sssssssss", $device_name, $brand, $pc_number, $processor, $ram, $system_type, $pen_touch, $problem, $qrCodeImagePath);
+
+    if ($stmt->execute()) {
         header("Location: ../pages/adminview.php");
         exit();
     } else {
-        echo "Error: " . $insert_sql . "<br>" . $conn->error; 
+        echo "Error: " . $stmt->error;
     }
+
+    $stmt->close(); // Close the prepared statement
 } else {
+    // Redirect if not a POST request
     header("Location: add_computer.php");
     exit();
 }
 
-$conn->close(); 
+$conn->close(); // Close the database connection
 ?>
